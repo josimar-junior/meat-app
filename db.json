@@ -370,5 +370,23 @@
       "restaurantId": "tasty-treats"
     }
   ],
-  "orders": []
+  "orders": [
+    {
+      "address": "Santos Dumont",
+      "number": "12",
+      "optionalAddress": "Ap 12",
+      "paymentOption": "MON",
+      "orderItems": [
+        {
+          "quantity": 4,
+          "menuId": "capp"
+        },
+        {
+          "quantity": 1,
+          "menuId": "espreso"
+        }
+      ],
+      "id": 1
+    }
+  ]
 }
