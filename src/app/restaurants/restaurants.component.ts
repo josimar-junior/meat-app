@@ -1,7 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { Restaurant } from './restaurant/restaurant.model';
 import { RestaurantsService } from './restaurants.service';
+import { Component, OnInit } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+import { FormGroup, FormControl, FormBuilder } from '@angular/forms';
+
+import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/operator/debounceTime';
+import 'rxjs/add/operator/distinctUntilChanged';
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/observable/from';
+import { Observable } from 'rxjs/Observable';
+
+import { Restaurant } from './restaurant/restaurant.model';
 
 @Component({
   selector: 'mt-restaurants',
@@ -27,9 +36,26 @@ export class RestaurantsComponent implements OnInit {
 
   restaurants: Restaurant[];
 
-  constructor(private restaurantsService: RestaurantsService) { }
+  searchForm: FormGroup;
+  searchControl: FormControl;
+
+  constructor(private restaurantsService: RestaurantsService,
+              private formBuilder: FormBuilder) { }
 
   ngOnInit() {
+
+    this.searchControl = this.formBuilder.control('');
+    this.searchForm = this.formBuilder.group({
+      searchControl: this.searchControl
+    })
+
+    this.searchControl.valueChanges
+      .debounceTime(500)
+      .distinctUntilChanged()
+      .switchMap(search => this.restaurantsService.getRestaurants(search)
+      .catch(error => Observable.from([])))
+      .subscribe(restaurants => this.restaurants = restaurants);
+
     this.restaurantsService.getRestaurants()
       .subscribe(restaurants => this.restaurants = restaurants);
   }
