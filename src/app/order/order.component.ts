@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
+
+import 'rxjs/add/operator/do';
 
 import { RadioOption } from 'app/shared/radio/radio-option.model';
 import { OrderService } from './order.service';
 import { CartItem } from 'app/restaurant-detail/shopping-carts/cart-item.model';
 import { Order, OrderItem } from './order.model';
-import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 
 @Component({
   selector: 'mt-order',
@@ -14,6 +16,8 @@ import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/fo
 export class OrderComponent implements OnInit {
 
   delivery: number = 8;
+
+  orderId: string;
 
   orderForm: FormGroup;
 
@@ -76,9 +80,17 @@ export class OrderComponent implements OnInit {
 
   saveOrder(order: Order) {
     order.orderItems = this.cartItems().map((item: CartItem) => new OrderItem(item.quantity, item.menuItem.id));
-    this.orderService.saveOrder(order).subscribe((orderId: string) => {
+    this.orderService.saveOrder(order)
+      .do((orderId: string) => {
+        this.orderId = orderId;
+      })
+      .subscribe((orderId: string) => {
       this.router.navigate(['/order-summary']);
       this.orderService.clear();
     });
+  }
+
+  isOrderCompleted(): boolean {
+    return this.orderId !== undefined;
   }
 }
