@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators, AbstractControl, FormControl } from '@angular/forms';
 
-import 'rxjs/add/operator/do';
+import { tap } from 'rxjs/operators';
 
 import { RadioOption } from 'app/shared/radio/radio-option.model';
 import { OrderService } from './order.service';
@@ -84,9 +84,9 @@ export class OrderComponent implements OnInit {
   saveOrder(order: Order) {
     order.orderItems = this.cartItems().map((item: CartItem) => new OrderItem(item.quantity, item.menuItem.id));
     this.orderService.saveOrder(order)
-      .do((orderId: string) => {
+      .pipe(tap((orderId: string) => {
         this.orderId = orderId;
-      })
+      }))
       .subscribe((orderId: string) => {
       this.router.navigate(['/order-summary']);
       this.orderService.clear();
